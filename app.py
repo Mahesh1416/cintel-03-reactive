@@ -103,4 +103,7 @@ with ui.layout_columns():
             hist.set_ylabel("Count")
             return hist
             
+@reactive.calc
+def filtered_data():
+    return penguins_df
    
