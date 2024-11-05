@@ -6,7 +6,7 @@ import seaborn as sns
 import palmerpenguins
 from palmerpenguins import load_penguins
 penguins_df = palmerpenguins.load_penguins()
-
+from shiny import reactive
 
 ui.page_opts(title="Mahesh Bashyal Penguin project", fillable=True)
 
