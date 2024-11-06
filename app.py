@@ -59,7 +59,7 @@ with ui.layout_columns():
 
         @render.data_frame
         def data_table():
-            return render.DataTable(penguins)
+            return filtered_data()
 
     # Display Data Grid (showing all data)
     with ui.card():
@@ -67,7 +67,7 @@ with ui.layout_columns():
 
         @render.data_frame
         def data_grid():
-            return render.DataGrid(penguins)
+            return filtered_data()
 
 
 # Display the Scatterplot
@@ -106,4 +106,9 @@ with ui.layout_columns():
 @reactive.calc
 def filtered_data():
     return penguins_df
-   
+
+
+       
+ 
+                
+           
