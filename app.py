@@ -1,13 +1,17 @@
 import plotly.express as px
-from shiny.express import input, ui
-from shinywidgets import output_widget, render_widget, render_plotly
-from shiny import render
-import seaborn as sns
-import palmerpenguins
+from shiny.express import input, ui, render
+from shinywidgets import render_plotly
 from palmerpenguins import load_penguins
-penguins_df = palmerpenguins.load_penguins()
+from shinywidgets import output_widget, render_widget, render_plotly
+import seaborn as sns
+from shiny import render
+import palmerpenguins
 from shiny import reactive
 
+
+penguins_df = load_penguins()
+
+# Set the Page Options with the title "Brett's Penguin Data"
 ui.page_opts(title="Mahesh Bashyal Penguin project", fillable=True)
 
 # Add a Shiny UI sidebar for user interaction
@@ -34,54 +38,66 @@ ui.hr()
 # Use ui.a() to add a hyperlink to the sidebar
 ui.a("GitHub",href="https://github.com/Mahesh1416/cintel-02-data/tree/main",target= "_blank") #to add a hyperlink to the sidebar
 
-# Main content layout
-penguins = load_penguins()
-    # Display the Plotly Histogram
 with ui.layout_columns():
-    with ui.card():        
-        ui.card_header("Palmer Penguins Plotly Histogram")    
-        @render_widget  
-        def create_histogram_plot():  
-            scatterplot = px.histogram(
-                data_frame=penguins,
-                x="body_mass_g",
-                nbins=100,
-            ).update_layout(
-                title={"text": "Penguin Mass", "x": 0.5},
-                yaxis_title="Count",
-                xaxis_title="Body Mass (g)",
-            )    
-            return scatterplot  
 
-    # Display Data Table (showing all data)
+    # New data table Using Filtered Data    
     with ui.card():
-        ui.card_header("Data Table")
-
+        "Penguins Data Table"
         @render.data_frame
         def data_table():
-            return filtered_data()
+            return render.DataTable(filtered_data())
 
-    # Display Data Grid (showing all data)
+    # Display data Grid Using Filtered Data    
     with ui.card():
-        ui.card_header("Data Grid")
-
+        "Penguins Data Grid"
         @render.data_frame
         def data_grid():
-            return filtered_data()
+            return render.DataGrid(filtered_data())
 
-
-# Display the Scatterplot
 with ui.layout_columns():
-    with ui.card():        
+    
+    # Plotly Histogram    
+    with ui.card():
+        ui.card_header("Plotly Histogram")
+        @render_plotly
+        def plotlyhistogram():
+            return px.histogram(
+                filtered_data(),
+                x=input.selected_attribute(),
+                nbins=input.plotly_bin_count(),
+                color="species"
+            ).update_layout(
+                xaxis_title="Bill length (mm)",
+                yaxis_title="Counts"
+            )
+            
+    # Seaborn Histogram    
+    with ui.card():
+        ui.card_header("Seaborn Histogram")
+       
+        @render.plot
+        def seabornhistogram():
+            ax=sns.histplot(
+                data=filtered_data(), 
+                x=input.selected_attribute(), 
+                bins=input.seaborn_bin_count(),
+               )
+            ax.set_title("Palmer Penguins")
+            ax.set_xlabel(input.selected_attribute())
+            ax.set_ylabel("Number")
+            return ax
+           
+    # Plotly Scatterplot
+    with ui.card(full_screen=True):
         ui.card_header("Plotly Scatterplot: Species")
         @render_plotly
         def plotly_scatterplot():
-                return px.scatter(penguins_df,
-                    x="bill_length_mm",
-                    y="body_mass_g",
-                    color="species",
-                    title="Penguins Plot (Plotly Express)",
-                    labels={
+            return px.scatter(
+                filtered_data(),
+                x="body_mass_g",
+                y="bill_depth_mm",
+                color="species",
+                 labels={
                         "bill_length_mm": "Bill Length (mm)",
                         "body_mass_g": "Body Mass (g)",
                     },
@@ -89,26 +105,17 @@ with ui.layout_columns():
                 )
 
 
-    
-    # Display the Seaborn Histogram (showing all species)
-    with ui.card():
-        ui.card_header("Seaborn Histogram: All Species")
-
-        @render.plot
-        def seaborn_histogram():
-            hist = sns.histplot(
-                data=penguins, x="body_mass_g", bins=input.seaborn_bin_count()
-            )
-            hist.set_xlabel("Mass (g)")
-            hist.set_ylabel("Count")
-            return hist
-            
 @reactive.calc
 def filtered_data():
+    selected_species = input.selected_species_list()
+    if selected_species:
+        return penguins_df[penguins_df['species'].isin(selected_species)]
     return penguins_df
 
 
-       
+               
+        
+         
  
                 
            
