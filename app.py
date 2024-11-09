@@ -11,7 +11,7 @@ from shiny import reactive
 
 penguins_df = load_penguins()
 
-# Set the Page Options with the title "Brett's Penguin Data"
+# Set the Page Options with the title 
 ui.page_opts(title="Mahesh Bashyal Penguin project", fillable=True)
 
 # Add a Shiny UI sidebar for user interaction
